@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptFolio v1.5 | Real-time Holdings Tracker</title>
+   <!-- Include Odometer stylesheet -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css">
+   <!-- Include Odometer script -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <!-- Login Page -->
+    <div id="login-page" class="container">
+        <div class="header">
+            <div>
+                <img src="ausolpay-logo.png" alt="Ausolpay Logo" class="app-logo">
+                <h1 class="app-title">CRYPTFOLIO v1.5</h1>
+                <p>Track your investments in real-time!</p>
+            </div>
+            <div class="login-form">
+                <input type="email" id="email-login" placeholder="Email">
+                <input type="password" id="password-login" placeholder="Password">
+                <div class="login-buttons">
+                    <button onclick="showRegisterPage()">New user? Register</button>
+                    <button onclick="login()">Login</button>
+                </div>
+                <div>
+                    <p>CryptFolio v1.5 | <a href="https://www.ausolpay.com.au" target="_blank">AusolPay</a> © 2024</p>
+                    <p>Data by CoinGecko</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Page -->
+    <div id="register-page" class="container" style="display: none;">
+        <div class="header">
+            <div>
+                <img src="ausolpay-logo.png" alt="Ausolpay Logo" class="app-logo">
+                <h1 class="app-title">CRYPTFOLIO v1.5</h1>
+                <p>Create your account</p>
+            </div>
+            <div class="register-form">
+                <div class="name-fields">
+                    <input type="text" id="first-name" placeholder="First Name">
+                    <input type="text" id="last-name" placeholder="Last Name">
+                </div>
+                <input type="email" id="email-register" placeholder="Email">
+                <input type="tel" id="phone" placeholder="Phone Number" maxlength="10" pattern="\d{4} \d{3} \d{3}">
+                <input type="password" id="password-register" placeholder="Create Password">
+                <input type="password" id="confirm-password" placeholder="Confirm Password">
+                <label>
+                    <input type="checkbox" id="terms-conditions">
+                    I accept the <a href="#" onclick="showTermsConditions()">terms and conditions</a>
+                </label>
+                <div class="register-buttons">
+                    <button onclick="register()">Register</button>
+                    <button onclick="showLoginPage()">Already a user? Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Page -->
+    <div id="app-page" class="container" style="display: none;">
+        <div class="header">
+            <div>
+                <img src="ausolpay-logo.png" alt="Ausolpay Logo" class="app-logo">
+                <h1 class="app-title">CRYPTFOLIO v1.5</h1>
+                <p>Track your investments in real-time!<br>Add <a href="https://docs.google.com/spreadsheets/d/1wTTuxXt8n9q7C4NDXqQpI3wpKu1_5bGVmP9Xz0XGSyU/edit?usp=sharing" target="_blank">Crypto ID's</a> to get started.</p>
+            </div>
+            <div class="add-crypto">
+                <input type="text" id="crypto-id-input" placeholder="Enter CoinGecko API ID">
+                <button onclick="addCrypto()">Add</button>
+            </div>
+        </div>
+        <div class="ui-holdings">
+            <h3>
+                <span id="percentage-change" class="neutral"><span class="triangle"></span> 0.00%</span>
+                <span id="value-change" class="neutral">($0.00)</span>
+            </h3>
+            <h1><span id="total-holdings">0.00</span></h1>
+            <h3>
+                <span id="record-high" class="neutral"><span class="triangle"></span> $0.00</span>
+                <span> &nbsp; | &nbsp; </span>
+                <span id="record-low" class="neutral"><span class="triangle"></span> $0.00</span>
+            </h3>
+            <h3 id="daily-milestone">$0,000.00</h3>
+        </div>
+
+        <div id="crypto-containers">
+            <!-- Dynamic crypto containers will be added here -->
+        </div>
+
+        <div class="buttons">
+            <button id="settings-button" onclick="showSettingsModal()">Settings</button>
+            <button id="logout-button" class="delete-button" onclick="confirmLogout()">Logout</button>
+        </div>
+
+        <div>
+            <p>CryptFolio v1.5 | <a href="https://www.ausolpay.com.au" target="_blank">AusolPay</a> © 2024</p>
+            <p>Data by CoinGecko</p>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSettingsModal()">&times;</span>
+            <h2 class="settings-title">SETTINGS</h2>
+            <div class="buttons">
+                <button id="clear-data-button" onclick="confirmClearData()">Clear Data</button>
+                <button id="reset-percentage-button" onclick="confirmResetPercentage()">Reset %</button>
+                <button id="reset-high-low-button" onclick="confirmResetHighLow()">Reset H/L</button>
+                <button id="reset-milestone-button" onclick="confirmResetMilestone()">Reset Milestone</button>
+            </div>
+            <div class="toggles">
+                <div class="audio-toggle">
+                    <label class="switch">
+                        <input type="checkbox" id="audio-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Audio</span>
+                </div>
+                <div class="dark-mode-toggle">
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <span>Dark Mode</span>
+                </div>
+                <div class="setting-item">
+                    <label class="switch">
+                        <input type="checkbox" id="vibrate-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <label for="vibrate-toggle" id="vibrate-label">Vibe: Off</label>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="delete-button" onclick="closeSettingsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for terms and conditions -->
+    <div id="terms-conditions-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTermsConditions()">&times;</span>
+            <h2>Terms and Conditions</h2>
+            <div class="terms-conditions-content">
+                <p>By using this app, you agree to the collection and use of your data for tracking your cryptocurrency holdings. We may use your data for remarketing purposes. Your data will be stored locally and will not be shared with third parties. By registering, you agree to receive communications related to the app. You can opt out of these communications at any time. Use of the app is at your own risk, and we are not responsible for any financial losses incurred.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for pop-up messages -->
+    <div id="popup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modal-message"></p>
+        </div>
+    </div>
+
+    <!-- Modal for total holdings -->
+    <div id="total-holdings-modal" class="modal">
+        <div class="modal-content total-holdings-modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="total-holdings-content">
+                <!-- Total holdings content will be dynamically inserted here -->
+            </div>
+            <div id="modal-lottie-container" style="position: absolute; bottom: 0; height: 80vh; width: 100%; overflow: hidden; display: none;">
+                <lottie-player id="modal-milestone-animation" src="https://lottie.host/ffe369c1-ce7f-4005-a652-528160576322/Eki4u779U6.json" background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>
+            </div>
+        </div>
+    </div>
+
+    <div id="candlestick-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCandlestickModal()">&times;</span>
+            <div id="crypto-info" class="crypto-info">
+                <img id="crypto-icon" src="" alt="Crypto Icon" class="crypto-icon">
+                <span id="crypto-name" class="crypto-name"></span>
+            </div>
+            <canvas id="candlestick-chart"></canvas>
+            <div id="modal-info" class="modal-info">
+            <h1 id="live-price" class="live-price"></h1>
+            <p id="holdings-info" class="holdings-info"></p> <!-- Add this line -->
+
+            <div id="crypto-modal">
+                
+                <table class="crypto-info-table">
+                    <tr>
+                        <td><strong>Market Cap Rank:</strong></td>
+                        <td id="marketCapRank"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FDV:</strong></td>
+                        <td id="fdv"></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><strong>Liquidity:</strong></td>
+                        <td id="liquidity"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>24h Low / 24h High:</strong></td>
+                        <td id="lowHigh"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Circulating Supply:</strong></td>
+                        <td id="circulatingSupply"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Supply:</strong></td>
+                        <td id="totalSupply"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Max Supply:</strong></td>
+                        <td id="maxSupply"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ATH / ATL:</strong></td>
+                        <td id="athAtl"></td>
+                    </tr>
+                    <!-- New rows for news articles, social media mentions, and liquidity -->
+                    <tr>
+                        <td><strong>Articles:</strong></td>
+                        <td id="newsArticles"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reddit:</strong></td>
+                        <td id="xMentions"></td>
+                    </tr>
+                </table>
+                
+                  
+              
+                <h3 class="bar-head">Market Sentiment (24h)</h3>
+                <div class="sentiment-bar-container">
+                  <div id="bearish-bar" class="sentiment-bar bearish-bar"></div>
+                  <div id="bullish-bar" class="sentiment-bar bullish-bar"></div>
+                </div>
+                <div class="sentiment-labels">
+                  <span id="bearish-label">Bearish: 50%</span>
+                  <span id="bullish-label">Bullish: 50%</span>
+                </div>
+              </div>
+
+       </div>
+    </div>
+
+    <!-- Lottie animation container -->
+    <div id="lottie-container" style="position: absolute; bottom: 0; height: 80vh; width: 100%; overflow: hidden; display: none;">
+        <lottie-player id="milestone-animation" src="https://lottie.host/ffe369c1-ce7f-4005-a652-528160576322/Eki4u779U6.json" background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>
+    </div>
+
+    <!-- Audio elements for notifications -->
+    <audio id="good-sound" src="sounds/good-sound.mp3" preload="auto" muted></audio>
+    <audio id="bad-sound" src="sounds/bad-sound.mp3" preload="auto" muted></audio>
+    <audio id="level-up-sound" src="sounds/level-up-sound.mp3" preload="auto" muted></audio>
+    <audio id="warning-sound" src="sounds/warning-sound.mp3" preload="auto" muted></audio>
+    <audio id="milestone-sound" src="sounds/milestone-sound.mp3" preload="auto" muted></audio>
+    <audio id="record-high-sound" src="sounds/record-high-sound.mp3" preload="auto" muted></audio>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/push.js/1.0.12/push.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair"></script>
+
+    <script src="scripts.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let fadeTimeout;
+            let cursorTimeout;
+
+            const showScrollbarAndCursor = () => {
+                clearTimeout(fadeTimeout);
+                clearTimeout(cursorTimeout);
+                document.body.classList.add('show-scrollbar');
+                document.documentElement.classList.add('show-scrollbar');
+                document.body.style.cursor = 'auto'; // Show cursor
+
+                fadeTimeout = setTimeout(() => {
+                    document.body.classList.remove('show-scrollbar');
+                    document.documentElement.classList.remove('show-scrollbar');
+                }, 3000); // Hide scrollbar after 2 seconds
+
+                cursorTimeout = setTimeout(() => {
+                    document.body.style.cursor = 'none'; // Hide cursor after 2 seconds
+                }, 3000);
+            };
+
+            document.addEventListener('mousemove', showScrollbarAndCursor);
+            document.addEventListener('scroll', showScrollbarAndCursor);
+        });
+
+        document.getElementById('crypto-id-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                addCrypto();
+            }
+        });
+
+        document.querySelectorAll('[id$="-input"]').forEach(input => {
+            input.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    const cryptoId = this.id.replace('-input', '');
+                    updateHoldings(cryptoId);
+                }
+            });
+        });
+
+        document.getElementById('confirm-password').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                register();
+            }
+        });
+    </script>
+</body>
+</html>

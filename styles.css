@@ -1,0 +1,890 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+body.light-mode {
+    background-color: #f0f0f0;
+    color: #000000;
+}
+
+.container {
+    text-align: center;
+    margin-top: 40px; /* Add space from the top of the app */
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+a {
+    color: lightgrey;
+}
+
+.app-logo {
+    width: 220px; /* Made the rocket logo bigger */
+    height: auto; /* Made the rocket logo bigger */
+    margin-bottom: 10px; /* Space below the logo */
+}
+
+.app-title {
+    font-size: 42px;
+}
+
+.ui-holdings {
+    margin-bottom: 40px;
+    cursor: pointer;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #555555;
+    color: #ffffff;
+    cursor: pointer;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+button:hover {
+    background-color: #777777;
+}
+
+.delete-button {
+    background-color: #ff5555;
+}
+
+.delete-button:hover {
+    background-color: #ff7777;
+}
+
+.cancel-button {
+    background-color: #777777;
+    color: #ffffff;
+}
+
+.cancel-button:hover {
+    background-color: #999999;
+}
+
+h1 {
+    margin: 5px 0 10px 0; /* Increased bottom margin for more space */
+    font-size: 55px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+h3 {
+    margin: 10px 0;
+}
+
+.crypto-container {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px; /* Increased space between the containers */
+    margin-right: 5px;
+    margin-left: 5px;
+    width: 300px;
+    display: inline-block;
+    position: relative;
+}
+
+body.light-mode .crypto-container {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    color: #000000;
+}
+
+.crypto-container p {
+    margin: 5px 0;
+}
+
+body.light-mode .crypto-container p {
+    font-weight: bold;
+}
+
+input[type="number"], .add-crypto input[type="text"], .login-form input[type="email"], .login-form input[type="password"], .register-form input[type="text"], .register-form input[type="email"], .register-form input[type="tel"], .register-form input[type="password"] {
+    width: calc(100% - 20px); /* Full width minus the margins */
+    max-width: 500px;
+    padding: 10px;
+    margin: 10px; /* Ensure uniform margin */
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: #333;
+    color: #ffffff;
+    box-sizing: border-box; /* Ensures padding and border are included in the total width and height */
+}
+
+.login-buttons, .register-buttons {
+    margin-top: 10px;
+}
+
+body.light-mode input[type="number"], body.light-mode .add-crypto input[type="text"], body.light-mode .login-form input[type="email"], body.light-mode .login-form input[type="password"], body.light-mode .register-form input[type="text"], body.light-mode .register-form input[type="email"], body.light-mode .register-form input[type="tel"], body.light-mode .register-form input[type="password"] {
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    color: #000000;
+}
+
+.add-crypto {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+.logo-container {
+    position: absolute;
+    top: -20px;
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 40px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.logo-container img {
+    width: 100%;
+    height: 100%;
+}
+
+.flash-green {
+    animation: flash-green 1s;
+}
+
+.flash-red {
+    animation: flash-red 1s;
+}
+
+@keyframes flash-green {
+    from { background-color: #00ff00; }
+    to { background-color: transparent; }
+}
+
+@keyframes flash-red {
+    from { background-color: #ff0000; }
+    to { background-color: transparent; }
+}
+
+.neutral {
+    color: #ffffff;
+}
+
+body.light-mode .neutral {
+    color: #000000;
+}
+
+.positive {
+    color: #00ff00;
+}
+
+body.light-mode .positive {
+    color: green;
+}
+
+.negative {
+    color: #ff0000;
+}
+
+body.light-mode .negative {
+    color: #ff0000;
+}
+
+.error-message {
+    color: red;
+    margin: 10px 0;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: scroll; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    margin: 0 auto;
+}
+
+.modal-content {
+    background-color: black;
+    margin: 10% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 1200px; /* Maximum width of the modal */
+    text-align: center;
+    position: relative; /* Ensures close button is positioned relative to the modal */
+    padding-top: 40px; /* Adds padding to the top to account for the close button */
+}
+
+body.light-mode .modal-content {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    color: #000000;
+}
+
+.close {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px 10px 0 0; /* Margin at top and right */
+    display: block; /* Ensures it stays on its own line */
+    text-align: right; /* Aligns the text to the right */
+    position: absolute; /* Positions the close button absolutely within the modal */
+    top: 10px; /* Adjust the top position */
+    right: 10px; /* Adjust the right position */
+    z-index: 10; /* Ensures it is above other elements */
+}
+
+.close:hover,
+.close:focus {
+    color: lightgrey;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.toggles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    margin-right: 5px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #555555;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+}
+
+.price-up {
+    color: #00ff00;
+}
+
+.price-down {
+    color: #ff0000;
+}
+
+.triangle {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    margin-right: 5px;
+    position: relative;
+    top: -2px;
+}
+
+.triangle-up {
+    border-width: 0 5px 7px 5px;
+    border-color: transparent transparent #00ff00 transparent;
+}
+
+.triangle-down {
+    border-width: 7px 5px 0 5px;
+    border-color: #ff0000 transparent transparent transparent;
+}
+
+.neutral {
+    color: #ffffff;
+}
+
+body.light-mode .neutral {
+    color: #000000;
+}
+
+.positive {
+    color: #00ff00;
+}
+
+body.light-mode .positive {
+    color: green;
+}
+
+.negative {
+    color: #ff0000;
+}
+
+body.light-mode .negative {
+    color: #ff0000;
+}
+
+.terms-conditions-content {
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: left;
+    color: white;
+}
+
+body.light-mode .terms-conditions-content {
+    color: black;
+}
+
+.register-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.login-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.name-fields {
+    display: flex;
+    justify-content: center;
+}
+
+.login-form, .register-form {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.total-holdings-modal-content .modal-total-holdings {
+    font-size: max(8vw, 6vh, 35px); /* Adapts font size from 55px to 120px based on viewport width */
+    font-weight: bold;
+    position: relative;
+    margin: clamp(10px, 2vmin, 20px) 0;
+}
+
+.total-holdings-modal-content .modal-percentage-change,
+.total-holdings-modal-content .modal-records {
+    font-size: max(4vw, 3vh, 15px); /* Adapts font size from 25px to 55px based on viewport width */
+    font-weight: bold;
+    margin: clamp(2px, 1vmin, 10px) 0;
+    position: relative;
+}
+
+.total-holdings-modal-content .triangle {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    margin-right: 5px;
+    margin-bottom: clamp(0, 2vw, 10px); /* Adapts the margin-bottom size */
+    position: relative;
+    top: -2px;
+}
+
+.total-holdings-modal-content .triangle-up {
+    border-width: clamp(8px, 1vw, 14px) clamp(5px, 0.75vw, 10px) clamp(6px, 1.5vw, 15px) clamp(5px, 0.75vw, 10px); /* Adapts the triangle size */
+    border-color: transparent transparent #00ff00 transparent;
+    margin-right: 10px;
+}
+
+.total-holdings-modal-content .triangle-down {
+    border-width: clamp(8px, 1vw, 14px) clamp(5px, 0.75vw, 10px) clamp(6px, 1.5vw, 15px) clamp(5px, 0.75vw, 10px);
+    border-color: #ff0000 transparent transparent transparent;
+    margin-right: 10px;
+}
+
+/* Align buttons in modals */
+.modal .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.delete-button, .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-button {
+    background-color: #ff5555;
+    color: #ffffff;
+}
+
+.cancel-button {
+    background-color: #777777;
+    color: #ffffff;
+}
+
+.delete-button:hover {
+    background-color: #ff7777;
+}
+
+.cancel-button:hover {
+    background-color: #999999;
+}
+
+/* Trade button styling */
+.trade-button {
+    background-color: #555555;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    margin: 0 5px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.trade-button:hover {
+    background-color: #777777;
+}
+
+/* Settings modal styling */
+#settings-modal .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#settings-modal .buttons button {
+    margin-bottom: 10px;
+}
+
+#settings-modal .toggles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* Add cursor pointer to UI holdings div */
+.ui-holdings:hover {
+    cursor: pointer;
+}
+
+/* Specific styles for the total holdings modal */
+#total-holdings-modal .modal-content {
+    width: 80%;
+    max-width: 1200px;
+    height: auto;
+    max-height: 550px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    margin: 7% auto;
+}
+
+/* Modal specific for total holdings */
+.total-holdings-modal-content {
+    width: 90%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    margin: 7% auto;
+}
+
+.total-holdings-modal-content .modal-percentage-change,
+.total-holdings-modal-content .modal-records,
+.total-holdings-modal-content .modal-total-holdings {
+    width: 100%; /* Ensure these elements take up the full width */
+    max-width: 1200px; /* Adjust the maximum width */
+    text-align: center; /* Center-align the text */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: show; /* Hide any overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
+    position: relative;
+}
+
+#total-holdings-modal .buttons {
+    margin-top: 5px;
+}
+
+#app-page .buttons {
+    margin-top: 20px;
+}
+
+.total-holdings-content {
+    text-align: center;
+    position: relative;
+    margin: 0 auto;
+}
+
+.settings-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+#settings-modal {
+    margin-bottom: 200px;
+}
+
+/* Custom scrollbar styles when visible */
+body.show-scrollbar, html.show-scrollbar {
+    scrollbar-width: auto; /* Firefox */
+    -ms-overflow-style: auto; /* Internet Explorer and Edge */
+    cursor: auto; /* Show the cursor when active */
+}
+
+body.show-scrollbar::-webkit-scrollbar, html.show-scrollbar::-webkit-scrollbar {
+    display: block; /* Chrome, Safari, and Opera */
+    width: 8px;
+    height: 8px;
+    position: absolute; /* Float above content */
+    transition: opacity 2s ease; /* Smooth fade-in and fade-out effect */
+}
+
+body.show-scrollbar::-webkit-scrollbar-thumb, html.show-scrollbar-thumb {
+    background: #555555; /* Dark grey thumb */
+    border-radius: 10px;
+    border: 2px solid #333333; /* Darker grey border */
+    transition: background 0.3s ease; /* Smooth color transition */
+}
+
+body.show-scrollbar::-webkit-scrollbar-track, html.show-scrollbar-track {
+    background: #222222; /* Dark grey track */
+    border-radius: 10px;
+}
+
+body.show-scrollbar::-webkit-scrollbar-thumb:hover, html.show-scrollbar-thumb:hover {
+    background: #888888; /* Slightly lighter thumb on hover */
+}
+
+/* Hide the scrollbar for WebKit browsers (Chrome, Safari, Opera) initially */
+body::-webkit-scrollbar, html::-webkit-scrollbar {
+    display: none;
+    opacity: 0;
+    transition: opacity 2s ease; /* Smooth fade-in and fade-out effect */
+}
+
+body::-webkit-scrollbar, html::-webkit-scrollbar {
+    opacity: 0;
+    transition: opacity 2s ease; /* Smooth fade-in and fade-out effect */
+}
+
+/* Hide the scrollbar for WebKit browsers (Chrome, Safari, Opera) initially */
+.modal::-webkit-scrollbar {
+    display: none;
+    opacity: 0;
+    transition: opacity 2s ease; /* Smooth fade-in and fade-out effect */
+}
+
+/* Add styles for the new milestone display */
+#daily-milestone {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+/* Add styles for the new button in settings */
+#settings-modal .buttons button {
+    margin-bottom: 10px;
+}
+
+#reset-milestone-button {
+    background-color: #555555;
+    color: #ffffff;
+}
+
+#reset-milestone-button:hover {
+    background-color: #777777;
+}
+
+.fetch-interval-toggle {
+    display: flex;
+    align-items: center;
+}
+
+/* Toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    margin-left: 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #474747;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+#lottie-container {
+    position: absolute;
+    bottom: 0;
+    height: 80vh;
+    width: 100%;
+    overflow: hidden;
+    display: none; /* Hide the animation by default */
+}
+
+#modal-lottie-container {
+    position: absolute;
+    bottom: 0;
+    height: 80vh; /* Increase the height */
+    width: 100%;
+    overflow: hidden;
+    display: none; /* Hide the animation by default */
+}
+
+#modal-milestone-animation {
+    width: 100%;
+    height: 100%;
+}
+
+/* Candlestick Chart Modal */
+#candlestick-modal .modal-content {
+    width: 90%;
+    max-width: 1920px;
+    height: auto;
+    padding: 10px;
+    margin: 0 auto;
+    top: 3%;
+}
+
+
+/* Candlestick chart takes up 60% of modal height */
+#candlestick-chart {
+    position: relative;
+    width: 90%;
+    height: 60%;  /* 60% height for the chart */
+    max-height: 40vh;  /* Prevent chart from growing too tall */
+}
+
+.chart-interval-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.chart-interval-buttons button {
+    padding: 5px 10px;
+    background-color: #555555;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.chart-interval-buttons button:hover {
+    background-color: #777777;
+}
+
+/* Ensure canvas resizes properly */
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+canvas:active {
+    cursor: grabbing;
+}
+
+.live-price {
+    font-size: calc(60% * var(--vw));
+    margin-top: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+:root {
+    --vw: 1vw;
+}
+
+.crypto-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px; /* Adds space between the name and the chart */
+}
+
+.crypto-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.crypto-name {
+    font-size: 24px;
+    font-weight: normal; /* Override bold */
+}
+
+
+.crypto-info-table {
+    width: 95%;
+    margin: 20px auto;
+    text-align: left;
+    font-size: 14px;
+    border-collapse: collapse;
+  }
+  
+  .crypto-info-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #909090;
+  }
+
+  .sentiment-bar-container {
+    margin-top: 20px;
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    position: relative;
+  }
+
+  .sentiment-bar {
+    height: 100%;
+    position: absolute;
+  }
+
+  .bearish-bar {
+    background-color: #982b42;
+    width: 50%;
+    left: 0;
+  }
+
+  .bullish-bar {
+    background-color: #2b5a60;
+    width: 50%;
+    right: 0;
+  }
+
+  .sentiment-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+
+  .bar-head {
+    margin-top: 30px;
+  }
+
+/* CSS to align data to the right and keep the titles bold */
+.crypto-info-row strong {
+    font-weight: bold; /* Your headings are already bold in HTML */
+}
+
+.crypto-info-row .info-data {
+    text-align: right; /* Right-aligns the data */
+    display: inline-block; /* Keeps inline structure intact */
+    width: 100%; /* Ensures it takes full width */
+}
+
+.modal-info {
+    position: relative;
+    margin-top: 30px;
+    height: auto;   
+    width: auto;
+}
