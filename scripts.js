@@ -269,16 +269,43 @@ function clearCryptoContainers() {
 }
 
 function loadUserData() {
+    const activeElement = document.activeElement;
+    const activeElementId = activeElement ? activeElement.id : null;
+    const activeSelectionStart = activeElement ? activeElement.selectionStart : null;
+    const activeSelectionEnd = activeElement ? activeElement.selectionEnd : null;
+
     if (users[loggedInUser]) {
         if (!users[loggedInUser].cryptos) {
             users[loggedInUser].cryptos = [];
         }
+
         users[loggedInUser].cryptos.forEach(crypto => {
-            addCryptoContainer(crypto.id, crypto.symbol, crypto.name, crypto.thumb);
-            document.getElementById(`${crypto.id}-holdings`).textContent = formatNumber((parseFloat(localStorage.getItem(`${loggedInUser}_${crypto.id}Holdings`)) || 0).toFixed(3));
+            const container = document.getElementById(`${crypto.id}-container`);
+            if (!container) {
+                addCryptoContainer(crypto.id, crypto.symbol, crypto.name, crypto.thumb);
+            }
+
+            const holdingsElement = document.getElementById(`${crypto.id}-holdings`);
+            if (holdingsElement) {
+                holdingsElement.textContent = formatNumber(
+                    (parseFloat(localStorage.getItem(`${loggedInUser}_${crypto.id}Holdings`)) || 0).toFixed(3)
+                );
+            }
         });
     }
+
+    // Restore focus and cursor position
+    if (activeElementId) {
+        const newActiveElement = document.getElementById(activeElementId);
+        if (newActiveElement && newActiveElement.setSelectionRange) {
+            newActiveElement.focus();
+            newActiveElement.setSelectionRange(activeSelectionStart, activeSelectionEnd);
+        }
+    }
 }
+
+
+
 
 function showLoginPage() {
     document.getElementById('login-page').style.display = 'block';
@@ -395,15 +422,27 @@ function updateApiUrl() {
 function updateHoldings(crypto) {
     const input = document.getElementById(`${crypto}-input`);
     const holdings = parseFloat(input.value);
+
     if (!isNaN(holdings)) {
         setStorageItem(`${loggedInUser}_${crypto}Holdings`, holdings);
         document.getElementById(`${crypto}-holdings`).textContent = formatNumber(holdings.toFixed(3));
-        input.value = '';
-        updateCryptoValue(crypto);
+
+        const priceElement = document.getElementById(`${crypto}-price-aud`);
+        const priceInAud = parseFloat(priceElement.textContent.replace(/,/g, '').replace('$', '')) || 0;
+
+        document.getElementById(`${crypto}-value-aud`).textContent = formatNumber((holdings * priceInAud).toFixed(2));
+
         updateTotalHoldings();
         sortContainersByValue();
+
+        // Preserve focus on the input element
+        const selectionStart = input.selectionStart;
+        const selectionEnd = input.selectionEnd;
+        input.focus();
+        input.setSelectionRange(selectionStart, selectionEnd);
     }
 }
+
 
 let lbankSocket;
 let isLbankWebSocketOpen = false;
@@ -976,6 +1015,9 @@ function checkThresholdCross(cryptoId, percentageChange7d) {
 }
 
 async function updateAppContent() {
+    const activeElement = document.activeElement;
+    const activeElementId = activeElement ? activeElement.id : null;
+
     clearCryptoContainers();
     loadUserData();
 
@@ -1008,7 +1050,23 @@ async function updateAppContent() {
     } else {
         console.error("Milestone element not found during initialization.");
     }
+
+    // Restore focus to the previously active input element
+    if (activeElementId) {
+        const newActiveElement = document.getElementById(activeElementId);
+        if (newActiveElement) {
+            newActiveElement.focus();
+            // Restore cursor position if the focused element was a text input
+            if (newActiveElement.setSelectionRange && activeElement.selectionStart !== undefined) {
+                newActiveElement.setSelectionRange(
+                    activeElement.selectionStart,
+                    activeElement.selectionEnd
+                );
+            }
+        }
+    }
 }
+
 
 function updatePercentageChangeUI(cryptoId, percentageChange7d, percentageChange30d) {
     const percentageChangeElement7d = document.getElementById(`${cryptoId}-percentage-change-7d`);
@@ -1383,8 +1441,16 @@ function addCryptoContainer(id, symbol, name, thumb) {
 
     document.getElementById('crypto-containers').appendChild(newContainer);
 
+    const input = document.getElementById(`${id}-input`);
+    input.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            updateHoldings(id);
+        }
+    });
+
     fetchPrices();
 }
+
 
 function deleteContainer(containerId, cryptoId) {
     const container = document.getElementById(containerId);
@@ -1650,9 +1716,34 @@ startConversionRateUpdate();
 
 
 
+let focusedElement = null;
+let focusedElementSelectionStart = null;
+let focusedElementSelectionEnd = null;
+
+// Save focus details globally before DOM updates
+function saveFocusDetails() {
+    focusedElement = document.activeElement;
+    if (focusedElement && focusedElement.tagName === 'INPUT') {
+        focusedElementSelectionStart = focusedElement.selectionStart;
+        focusedElementSelectionEnd = focusedElement.selectionEnd;
+    } else {
+        focusedElement = null;
+    }
+}
+
+// Restore focus details after DOM updates
+function restoreFocusDetails() {
+    if (focusedElement && document.body.contains(focusedElement)) {
+        focusedElement.focus();
+        if (focusedElement.setSelectionRange && focusedElementSelectionStart !== null) {
+            focusedElement.setSelectionRange(focusedElementSelectionStart, focusedElementSelectionEnd);
+        }
+    }
+}
+
 async function updatePriceFromWebSocket(symbol, priceInUsd, source = 'MEXC') {
-    const conversionRate = await fetchUsdtToAudConversionRate();  // Fetch the real-time USD to AUD rate
-    const priceInAud = priceInUsd * conversionRate;  // Convert USD to AUD
+    const conversionRate = await fetchUsdtToAudConversionRate(); // Fetch the real-time USD to AUD rate
+    const priceInAud = priceInUsd * conversionRate; // Convert USD to AUD
 
     // Check if this is a new price
     if (lastPriceForCrypto[symbol] && lastPriceForCrypto[symbol] === priceInAud) {
@@ -1663,9 +1754,12 @@ async function updatePriceFromWebSocket(symbol, priceInUsd, source = 'MEXC') {
     // Store the new price as the last known price
     lastPriceForCrypto[symbol] = priceInAud;
 
+    // Save current focus state
+    saveFocusDetails();
+
     users[loggedInUser].cryptos.forEach(async crypto => {
         if (crypto.symbol.toLowerCase() === symbol) {
-            const coingeckoId = crypto.id;  // Use coingeckoId for DOM element lookup
+            const coingeckoId = crypto.id; // Use coingeckoId for DOM element lookup
             const priceElement = document.getElementById(`${coingeckoId}-price-aud`);
 
             if (priceElement) {
@@ -1680,19 +1774,20 @@ async function updatePriceFromWebSocket(symbol, priceInUsd, source = 'MEXC') {
                     const flashClass = isPriceUp ? 'flash-green' : 'flash-red';
                     const colorClass = isPriceUp ? 'price-up' : 'price-down';
 
-                    // Keep total holdings flashing but remain white after
+                    // Update price without re-rendering the container
                     priceElement.classList.remove('price-down', 'flash-red', 'price-up', 'flash-green');
                     priceElement.classList.add(colorClass);
-                    flashColor(`${coingeckoId}-price-aud`, flashClass);  // Flash but remain white afterward
+                    flashColor(`${coingeckoId}-price-aud`, flashClass); // Flash but remain white afterward
                     triangleElement.classList.toggle('triangle-up', isPriceUp);
                     triangleElement.classList.toggle('triangle-down', !isPriceUp);
 
-                    priceElement.textContent = `$${formatNumber(priceInAud.toFixed(8), true)}`;  // Update price
+                    priceElement.textContent = `$${formatNumber(priceInAud.toFixed(8), true)}`; // Update price
                     const holdings = parseFloat(localStorage.getItem(`${loggedInUser}_${coingeckoId}Holdings`)) || 0;
                     const holdingsValueAud = holdings * priceInAud;
 
-                    // Update holdings value in the container (main page behavior remains)
-                    document.getElementById(`${coingeckoId}-value-aud`).textContent = formatNumber(holdingsValueAud.toFixed(2));
+                    // Update holdings value directly
+                    const valueElement = document.getElementById(`${coingeckoId}-value-aud`);
+                    valueElement.textContent = formatNumber(holdingsValueAud.toFixed(2));
 
                     // Now update the chart modal holdings and value if it's open
                     if (currentCryptoId === coingeckoId) {
@@ -1713,11 +1808,11 @@ async function updatePriceFromWebSocket(symbol, priceInUsd, source = 'MEXC') {
                         // Flash live price amounts only, not the holdings value in the chart modal
                         flashColor('live-price-amount', flashClass);
                         flashColor('live-price-usd', flashClass);
-                        document.getElementById('holdings-value').style.color = isPriceUp ? '#00FF00' : 'red';  // Keep color after the flash for holdings value
+                        document.getElementById('holdings-value').style.color = isPriceUp ? '#00FF00' : 'red'; // Keep color after the flash for holdings value
                     }
 
-                    updateTotalHoldings();  // Update total holdings on the main page
-                    sortContainersByValue();  // Sort based on updated value
+                    updateTotalHoldings(); // Update total holdings on the main page
+                    sortContainersByValue(); // Sort based on updated value
 
                     // Update candlestick chart with the new live price
                     if (currentCryptoId === coingeckoId) {
@@ -1727,7 +1822,11 @@ async function updatePriceFromWebSocket(symbol, priceInUsd, source = 'MEXC') {
             }
         }
     });
+
+    // Restore focus state after updates
+    restoreFocusDetails();
 }
+
 
 
 // Flashing function to handle color changes for a specified element
@@ -2146,7 +2245,7 @@ function debounceUpdateUI(cryptoId, priceInAud) {
     updateTimeout = setTimeout(() => {
         const priceElement = document.getElementById(`${cryptoId}-price-aud`);
         if (priceElement) {
-            const holdings = parseFloat(getStorageItem(`${loggedInUser}_${cryptoId}Holdings`)) || 0;
+            const holdings = parseFloat(localStorage.getItem(`${loggedInUser}_${cryptoId}Holdings`)) || 0;
             document.getElementById(`${cryptoId}-value-aud`).textContent = formatNumber((holdings * priceInAud).toFixed(2));
         }
 
@@ -2154,6 +2253,7 @@ function debounceUpdateUI(cryptoId, priceInAud) {
         sortContainersByValue();
     }, 500);  // Debounce to update after 500ms
 }
+
 
 
 
