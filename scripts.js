@@ -424,24 +424,29 @@ function updateHoldings(crypto) {
     const holdings = parseFloat(input.value);
 
     if (!isNaN(holdings)) {
+        // Save the updated holdings in storage
         setStorageItem(`${loggedInUser}_${crypto}Holdings`, holdings);
+
+        // Update the displayed holdings in the UI
         document.getElementById(`${crypto}-holdings`).textContent = formatNumber(holdings.toFixed(3));
 
+        // Get the current price in AUD
         const priceElement = document.getElementById(`${crypto}-price-aud`);
         const priceInAud = parseFloat(priceElement.textContent.replace(/,/g, '').replace('$', '')) || 0;
 
+        // Update the value in AUD
         document.getElementById(`${crypto}-value-aud`).textContent = formatNumber((holdings * priceInAud).toFixed(2));
 
+        // Update the total holdings and re-sort containers by value
         updateTotalHoldings();
         sortContainersByValue();
 
-        // Preserve focus on the input element
-        const selectionStart = input.selectionStart;
-        const selectionEnd = input.selectionEnd;
-        input.focus();
-        input.setSelectionRange(selectionStart, selectionEnd);
+        // Clear the input value and remove focus
+        input.value = '';
+        input.blur();
     }
 }
+
 
 
 let lbankSocket;
@@ -799,30 +804,64 @@ function playSound(soundId) {
     }
 }
 
+let lastNotificationTimestamp = 0; // Tracks the last notification timestamp
+const notificationCooldown = 30000; // 30-second cooldown
+
 function notifyRecordHigh() {
-    const icon = 'path/to/record-high-icon.png';
+    const now = Date.now();
+    if (now - lastNotificationTimestamp < notificationCooldown) {
+        console.log('Record High notification suppressed due to cooldown.');
+        return; // Exit if cooldown period hasn't passed
+    }
+
+    const icon = 'images/record-high-icon.png';
     checkAndRequestNotificationPermission();
-    sendNotification('New Record High!', `Your portfolio reached a new record high of $${formatNumber(recordHigh.toFixed(2))}`, icon);
+    sendNotification(
+        'New Record High!',
+        `Your portfolio reached a new record high of $${formatNumber(recordHigh.toFixed(2))}`,
+        icon
+    );
+    lastNotificationTimestamp = now; // Update the last notification timestamp
 }
 
 function notifyRecordLow() {
-    const icon = 'path/to/record-low-icon.png';
+    const now = Date.now();
+    if (now - lastNotificationTimestamp < notificationCooldown) {
+        console.log('Record Low notification suppressed due to cooldown.');
+        return; // Exit if cooldown period hasn't passed
+    }
+
+    const icon = 'images/record-low-icon.png';
     checkAndRequestNotificationPermission();
-    sendNotification('New Record Low', `Your portfolio hit a new record low of $${formatNumber(recordLow.toFixed(2))}`, icon);
+    sendNotification(
+        'New Record Low',
+        `Your portfolio hit a new record low of $${formatNumber(recordLow.toFixed(2))}`,
+        icon
+    );
+    lastNotificationTimestamp = now; // Update the last notification timestamp
 }
 
 function notifyPortfolioChange(change) {
-    const icon = change > 0 ? 'path/to/positive-icon.png' : 'path/to/negative-icon.png';
+    const icon = change > 0 ? 'images/positive-icon.png' : 'path/to/negative-icon.png';
     const changeText = change > 0 ? 'increased' : 'decreased';
     checkAndRequestNotificationPermission();
-    sendNotification('Portfolio Update', `Your portfolio has ${changeText} by ${Math.abs(change).toFixed(2)}% in the last 24 hours.`, icon);
+    sendNotification(
+        'Portfolio Update',
+        `Your portfolio has ${changeText} by ${Math.abs(change).toFixed(2)}% in the last 24 hours.`,
+        icon
+    );
 }
 
 function notifyMilestone(milestone) {
-    const icon = 'path/to/milestone-icon.png';
+    const icon = 'images/milestone-icon.png';
     checkAndRequestNotificationPermission();
-    sendNotification('Milestone Achieved!', `You've reached a new milestone of $${formatNumber(milestone.toFixed(2))}`, icon);
+    sendNotification(
+        'Milestone Achieved!',
+        `You've reached a new milestone of $${formatNumber(milestone.toFixed(2))}`,
+        icon
+    );
 }
+
 
 function notifyTradeModal(symbol, logo) {
     checkAndRequestNotificationPermission();
