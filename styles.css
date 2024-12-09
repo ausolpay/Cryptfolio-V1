@@ -727,7 +727,6 @@ input:checked + .slider:before {
     height: 80vh;
     width: 100%;
     overflow: hidden;
-    display: none; /* Hide the animation by default */
 }
 
 #modal-lottie-container {
@@ -736,7 +735,7 @@ input:checked + .slider:before {
     height: 80vh; /* Increase the height */
     width: 100%;
     overflow: hidden;
-    display: none; /* Hide the animation by default */
+   
 }
 
 #modal-milestone-animation {
@@ -888,3 +887,5 @@ canvas:active {
     height: auto;   
     width: auto;
 }
+
+
