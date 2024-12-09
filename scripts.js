@@ -1117,10 +1117,12 @@ async function updateAppContent() {
     clearCryptoContainers();
     loadUserData();
 
+
     updateApiUrl();
 
     setWebSocketCycle();
     await fetchPrices();
+    await Promise.all(users[loggedInUser].cryptos.map(crypto => fetchInitialPercentageChanges(crypto.id)));
 
     updateTotalHoldings();
     updatePercentageChange(previousTotalHoldings);
