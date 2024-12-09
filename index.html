@@ -19,6 +19,7 @@
                 <img src="ausolpay-logo.png" alt="Ausolpay Logo" class="app-logo">
                 <h1 class="app-title">CRYPTFOLIO v1.5</h1>
                 <p>Track your investments in real-time!</p>
+
             </div>
             <div class="login-form">
                 <input type="email" id="email-login" placeholder="Email">
@@ -72,11 +73,17 @@
                 <h1 class="app-title">CRYPTFOLIO v1.5</h1>
                 <p>Track your investments in real-time!<br>Add <a href="https://docs.google.com/spreadsheets/d/1wTTuxXt8n9q7C4NDXqQpI3wpKu1_5bGVmP9Xz0XGSyU/edit?usp=sharing" target="_blank">Crypto ID's</a> to get started.</p>
             </div>
+            
             <div class="add-crypto">
                 <input type="text" id="crypto-id-input" placeholder="Enter CoinGecko API ID">
                 <button onclick="addCrypto()">Add</button>
             </div>
         </div>
+
+        <div id="modal-lottie-container" style="position: absolute; bottom: 0; height: 80vh; width: 100%; overflow: hidden; display: none;">
+            <lottie-player id="milestone-animation" src="https://lottie.host/ffe369c1-ce7f-4005-a652-528160576322/Eki4u779U6.json" background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>
+        </div>
+
         <div class="ui-holdings">
             <h3>
                 <span id="percentage-change" class="neutral"><span class="triangle"></span> 0.00%</span>
@@ -253,9 +260,18 @@
        </div>
     </div>
 
-    <!-- Lottie animation container -->
-    <div id="lottie-container" style="position: absolute; bottom: 0; height: 80vh; width: 100%; overflow: hidden; display: none;">
-        <lottie-player id="milestone-animation" src="https://lottie.host/ffe369c1-ce7f-4005-a652-528160576322/Eki4u779U6.json" background="transparent" speed="1" style="width: 100%; height: 100%;" loop autoplay></lottie-player>
+   
+
+    <div id="lottie-container" style="display: none;">
+        <lottie-player
+            id="milestone-animation"
+            src="https://lottie.host/ffe369c1-ce7f-4005-a652-528160576322/Eki4u779U6.json"
+            background="transparent"
+            speed="1"
+            style="width: 100%; height: 100%;"
+            loop
+            autoplay
+        ></lottie-player>
     </div>
 
     <!-- Audio elements for notifications -->
