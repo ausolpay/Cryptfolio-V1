@@ -19,6 +19,7 @@ const twoMinutes = 2 * 60 * 1000;
 let candlestickChart;
 let currentCryptoId;
 
+
 function getApiKey() {
     return apiKeys[currentApiKeyIndex];
 }
@@ -733,16 +734,16 @@ function updateTotalHoldings() {
 
     if (totalHoldings !== previousTotalHoldings) {
         if (totalHoldings > previousTotalHoldings) {
+            playSound('good-sound');
             flashColor('total-holdings', 'flash-green');
             flashColor('modal-total-holdings', 'flash-green');
-            playSound('good-sound');
             if (isVibrateEnabled && "vibrate" in navigator) {
                 navigator.vibrate(100);
             }
         } else if (totalHoldings < previousTotalHoldings) {
+            playSound('bad-sound');
             flashColor('total-holdings', 'flash-red');
             flashColor('modal-total-holdings', 'flash-red');
-            playSound('bad-sound');
             if (isVibrateEnabled && "vibrate" in navigator) {
                 navigator.vibrate(300);
             }
@@ -874,14 +875,15 @@ function updateMilestone(totalHoldings) {
         console.error("Milestone element not found.");
         return;
     }
+
     let lastMilestone = parseInt(localStorage.getItem(`${loggedInUser}_lastMilestone`)) || 0;
 
+    // Check if a new milestone threshold is passed
     if (totalHoldings >= lastMilestone + 1000) {
-        lastMilestone = Math.floor(totalHoldings / 1000) * 1000;
+        lastMilestone = Math.floor(totalHoldings / 1000) * 1000; // Calculate the new milestone
         localStorage.setItem(`${loggedInUser}_lastMilestone`, lastMilestone);
-        notifyMilestone(lastMilestone);
-        playSound('milestone-sound');
-        sortContainersByValue();
+        notifyMilestone(lastMilestone); // Notify the user about the milestone
+        playSound('milestone-sound'); // Play milestone sound
     }
 
     milestoneElement.textContent = `$${formatNumber(lastMilestone.toFixed(2))}`;
@@ -912,58 +914,113 @@ function resetMilestoneEvery24Hours() {
 
 resetMilestoneEvery24Hours();
 
-// Function to play sound and handle the Lottie animation
-function playSound(soundId) {
-    const sound = document.getElementById(soundId);
-    if (sound) {
-        if (!sound.muted) {
-            sound.play().catch(error => {
-                console.error('Sound play failed:', error);
-            });
-        }
-        // If the milestone sound is played, show the Lottie animation and trigger vibrations
-        if (soundId === 'milestone-sound') {
-            playMilestoneAnimation();
-            playMilestoneModalAnimation();
-            if (isVibrateEnabled && "vibrate" in navigator) {
-                navigator.vibrate([100, 100, 100, 100, 100, 100]); // 6 vibrations of 100ms each
-            }
-        }
-    }
-}
-
-
 // Function to play the Lottie animation
 function playMilestoneAnimation() {
     const lottieContainer = document.getElementById('lottie-container');
     const lottiePlayer = document.getElementById('milestone-animation');
-    
-    lottieContainer.style.display = 'block'; // Show the animation container
 
-    // Play the animation
-    lottiePlayer.play();
+    if (!lottieContainer || !lottiePlayer) {
+        console.error("Lottie animation elements not found.");
+        return;
+    }
 
-    // Hide the animation after it finishes (assuming the duration is known, here it's set to 3 seconds)
+    console.log("Triggering milestone animation.");
+
+    // Force display and ensure it's on top
+    lottieContainer.style.display = 'block';
+    lottieContainer.style.zIndex = '9999'; // Bring it to the top of the stack
+    lottieContainer.style.position = 'absolute'; // Ensure it doesn't get hidden by other elements
+
+    try {
+        // Reset and play the animation
+        if (typeof lottiePlayer.seek === 'function' && typeof lottiePlayer.play === 'function') {
+            lottiePlayer.seek(0); // Reset to the beginning
+            lottiePlayer.play();
+            console.log("Lottie animation started.");
+        } else {
+            console.error("Lottie Player methods not available.");
+        }
+    } catch (error) {
+        console.error("Error playing Lottie animation:", error);
+    }
+
+    // Hide the animation after 3 seconds
     setTimeout(() => {
         lottieContainer.style.display = 'none';
-    }, 1100); // Adjust the timeout duration according to your animation length
+        console.log("Lottie animation hidden.");
+    }, 1000); // Adjust duration to match animation
 }
 
-// Function to play the Lottie animation in the modal
+// Function to play the milestone modal animation
 function playMilestoneModalAnimation() {
     const lottieContainer = document.getElementById('modal-lottie-container');
     const lottiePlayer = document.getElementById('modal-milestone-animation');
-    
-    lottieContainer.style.display = 'block'; // Show the animation container
 
-    // Play the animation
-    lottiePlayer.play();
+    if (!lottieContainer || !lottiePlayer) {
+        console.error("Modal Lottie animation elements not found.");
+        return;
+    }
 
-    // Hide the animation after it finishes (assuming the duration is known, here it's set to 3 seconds)
+    console.log("Triggering modal milestone animation.");
+
+    // Force display and ensure it's on top
+    lottieContainer.style.display = 'block';
+    lottieContainer.style.zIndex = '9999'; // Bring it to the top of the stack
+    lottieContainer.style.position = 'absolute'; // Ensure it doesn't get hidden by other elements
+
+    try {
+        // Reset and play the animation
+        if (typeof lottiePlayer.seek === 'function' && typeof lottiePlayer.play === 'function') {
+            lottiePlayer.seek(0); // Reset to the beginning
+            lottiePlayer.play();
+            console.log("Modal Lottie animation started.");
+        } else {
+            console.error("Modal Lottie Player methods not available.");
+        }
+    } catch (error) {
+        console.error("Error playing modal Lottie animation:", error);
+    }
+
+    // Hide the animation after 3 seconds
     setTimeout(() => {
         lottieContainer.style.display = 'none';
-    }, 1100); // Adjust the timeout duration according to your animation length
+        console.log("Modal Lottie animation hidden.");
+    }, 1000); // Adjust duration to match animation
 }
+
+// Function to play sound and handle Lottie animations
+function playSound(soundId) {
+    const sound = document.getElementById(soundId);
+
+    if (sound) {
+        if (!sound.muted) {
+            sound.play().catch((error) => {
+                console.error("Sound play failed:", error);
+            });
+        }
+
+        // If the milestone sound is played, trigger animations and vibration
+        if (soundId === 'milestone-sound') {
+            console.log("Milestone sound detected, triggering animations and vibration.");
+            playMilestoneAnimation();
+            playMilestoneModalAnimation();
+
+            if (isVibrateEnabled && "vibrate" in navigator) {
+                navigator.vibrate([100, 100, 100, 100, 100, 100]); // 6 vibrations of 100ms each
+                console.log("Vibration triggered.");
+            }
+        }
+    } else {
+        console.error("Sound element not found:", soundId);
+    }
+}
+
+// Ensure the DOM is ready before adding event listeners or running functions
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM fully loaded. Ready to play animations.");
+});
+
+
 
 async function fetchInitialPercentageChanges(cryptoId) {
     const url = `${coinDetailsUrl}${cryptoId}?x_cg_demo_api_key=${getApiKey()}`;
