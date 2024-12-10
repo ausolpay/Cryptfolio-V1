@@ -110,8 +110,7 @@ function initializeApp() {
 
         setWebSocketCycle();
         fetchPrices();
-        // Check for 24hr auto percentage reset
-        autoResetPercentage();
+
 
         // Initialize the audio toggle
         const audioToggle = document.getElementById('audio-toggle');
@@ -1265,19 +1264,28 @@ function autoResetPercentage() {
     const lastResetDate = getStorageItem(`${loggedInUser}_lastPercentageResetDate`);
     const todayDate = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
-    // Check if it's time to reset
-    if (now.getHours() === resetHour && now.getMinutes() === resetMinute) {
-        if (lastResetDate !== todayDate) {
-            console.log("Resetting percentage at 06:00 AM");
-            resetPercentage(); // Call the existing resetPercentage function
-            setStorageItem(`${loggedInUser}_lastPercentageResetDate`, todayDate);
-        }
+    // Calculate the reset time for today
+    const resetTimeToday = new Date();
+    resetTimeToday.setHours(resetHour, resetMinute, 0, 0);
+
+    // Check if the reset time has passed today and hasn't been reset
+    if (now >= resetTimeToday && lastResetDate !== todayDate) {
+        console.log("Resetting percentage due to missed reset time");
+        resetPercentage(); // Call the existing resetPercentage function
+        setStorageItem(`${loggedInUser}_lastPercentageResetDate`, todayDate);
     }
     console.log("Checking for 24hr Auto Reset Percentage");
 }
 
-// Set an interval to check every minute
+// Call autoResetPercentage on app load to handle missed resets
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Checking for missed 24hr Auto Reset Percentage");
+    autoResetPercentage();
+});
+
+// Set an interval to check every minute for the reset
 setInterval(autoResetPercentage, 60000); // Check every 60 seconds (1 minute)
+
 
 
 
