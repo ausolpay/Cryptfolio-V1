@@ -2997,9 +2997,3 @@ function closeCandlestickModal() {
 
 // Initialize the app
 initializeApp();
-
-
-
-
-           
-
