@@ -1406,7 +1406,7 @@ function resetHighLow() {
     localStorage.setItem(`${loggedInUser}_recordLow`, recordLow);
     updateRecordDisplay();
     showModal('High/Low records reset successfully.');
-    closeModal(1500);
+    closeModal(1000);
 }
 
 // Function to send notification
@@ -1494,7 +1494,7 @@ function confirmAction(action, containerId, cryptoId) {
     } else if (action === 'confirmDelete') {
         confirmDelete(containerId, cryptoId);
     }
-    closeModal();
+    closeSettingsModal();
 }
 
 function clearData() {
@@ -1526,6 +1526,7 @@ function clearData() {
     localStorage.setItem(`${loggedInUser}_recordLow`, recordLow);
 
     showModal('All data cleared successfully.');
+    closeModal(1500);
 
     initializeApp();
 }
