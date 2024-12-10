@@ -110,6 +110,8 @@ function initializeApp() {
 
         setWebSocketCycle();
         fetchPrices();
+        // Check for 24hr auto percentage reset
+        autoResetPercentage();
 
         // Initialize the audio toggle
         const audioToggle = document.getElementById('audio-toggle');
@@ -1140,6 +1142,8 @@ async function updateAppContent() {
     // Initialize record high and low display
     updateRecordDisplay();
 
+
+
     // Initialize milestone display
     const lastMilestone = parseInt(localStorage.getItem(`${loggedInUser}_lastMilestone`)) || 0;
     const milestoneElement = document.getElementById('daily-milestone');
@@ -1253,6 +1257,31 @@ function removeStorageItem(key) {
 }
 
 
+function autoResetPercentage() {
+    const resetHour = 6; // Set to 6 AM
+    const resetMinute = 0; // Set to 00 minutes
+
+    const now = new Date();
+    const lastResetDate = getStorageItem(`${loggedInUser}_lastPercentageResetDate`);
+    const todayDate = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+    // Check if it's time to reset
+    if (now.getHours() === resetHour && now.getMinutes() === resetMinute) {
+        if (lastResetDate !== todayDate) {
+            console.log("Resetting percentage at 06:00 AM");
+            resetPercentage(); // Call the existing resetPercentage function
+            setStorageItem(`${loggedInUser}_lastPercentageResetDate`, todayDate);
+        }
+    }
+    console.log("Checking for 24hr Auto Reset Percentage");
+}
+
+// Set an interval to check every minute
+setInterval(autoResetPercentage, 60000); // Check every 60 seconds (1 minute)
+
+
+
+// Function to update percentage change
 function updatePercentageChange(currentTotalHoldings) {
     const percentageChangeElement = document.getElementById('percentage-change');
     const triangleElement = percentageChangeElement.querySelector('.triangle');
@@ -1336,6 +1365,7 @@ function resetPercentage() {
     localStorage.setItem(`${loggedInUser}_lastUpdated`, Date.now().toString());
     updatePercentageChange(currentTotalHoldings);
     showModal('Percentage reset successfully.');
+    closeModal(1500);
 }
 
 function resetHighLow() {
@@ -1345,6 +1375,7 @@ function resetHighLow() {
     localStorage.setItem(`${loggedInUser}_recordLow`, recordLow);
     updateRecordDisplay();
     showModal('High/Low records reset successfully.');
+    closeModal(1500);
 }
 
 // Function to send notification
