@@ -1256,7 +1256,7 @@ function removeStorageItem(key) {
 }
 
 
-function autoResetPercentage() {
+async function autoResetPercentage() {
     const resetHour = 6; // Set to 6 AM
     const resetMinute = 0; // Set to 00 minutes
 
@@ -1264,28 +1264,43 @@ function autoResetPercentage() {
     const lastResetDate = getStorageItem(`${loggedInUser}_lastPercentageResetDate`);
     const todayDate = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
-    // Calculate the reset time for today
-    const resetTimeToday = new Date();
-    resetTimeToday.setHours(resetHour, resetMinute, 0, 0);
+    try {
+        // Check if it's time to reset
+        if (now.getHours() === resetHour && now.getMinutes() === resetMinute) {
+            if (lastResetDate !== todayDate) {
+                console.log("Resetting percentage at 06:00 AM");
+                setStorageItem(`${loggedInUser}_lastPercentageResetDate`, todayDate);
+                await resetPercentageDaily(); // Call the existing resetPercentage function
+            }
+        }
 
-    // Check if the reset time has passed today and hasn't been reset
-    if (now >= resetTimeToday && lastResetDate !== todayDate) {
-        console.log("Resetting percentage due to missed reset time");
-        resetPercentage(); // Call the existing resetPercentage function
-        setStorageItem(`${loggedInUser}_lastPercentageResetDate`, todayDate);
+        // Check if the reset was missed and the app was opened after the reset time
+        if (now.getHours() > resetHour && now.getMinutes() > resetMinute) {
+            if (lastResetDate !== todayDate) {
+                console.log("Resetting missed auto percentage reset");
+                setStorageItem(`${loggedInUser}_lastPercentageResetDate`, todayDate);
+                await resetPercentageDaily(); // Call the existing resetPercentage function
+            }
+        }
+    } catch (error) {
+        console.error("Error during auto reset percentage:", error);
     }
+
     console.log("Checking for 24hr Auto Reset Percentage");
 }
 
-// Call autoResetPercentage on app load to handle missed resets
+// Call autoResetPercentage on app load to handle missed resets with a 3-second delay
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Checking for missed 24hr Auto Reset Percentage");
-    autoResetPercentage();
+    console.log("DOM fully loaded, waiting 3 seconds before checking for missed 24hr Auto Reset Percentage");
+    setTimeout(() => {
+        console.log("Checking for missed 24hr Auto Reset Percentage after 3-second delay");
+        autoResetPercentage();
+    }, 1000); 
 });
 
-// Set an interval to check every minute for the reset
-setInterval(autoResetPercentage, 60000); // Check every 60 seconds (1 minute)
 
+// Set an interval to check every minute
+setInterval(autoResetPercentage, 60000); // Check every 60 seconds (1 minute)
 
 
 
@@ -1373,7 +1388,15 @@ function resetPercentage() {
     localStorage.setItem(`${loggedInUser}_lastUpdated`, Date.now().toString());
     updatePercentageChange(currentTotalHoldings);
     showModal('Percentage reset successfully.');
-    closeModal(1500);
+    closeModal(1000);
+}
+
+function resetPercentageDaily() {
+    const currentTotalHoldings = parseFloat(document.getElementById('total-holdings').textContent.replace(/,/g, '').replace('$', '').replace('AUD', '').trim());
+    totalHoldings24hAgo = currentTotalHoldings;
+    localStorage.setItem(`${loggedInUser}_totalHoldings24hAgo`, totalHoldings24hAgo);
+    localStorage.setItem(`${loggedInUser}_lastUpdated`, Date.now().toString());
+    updatePercentageChange(currentTotalHoldings);
 }
 
 function resetHighLow() {
