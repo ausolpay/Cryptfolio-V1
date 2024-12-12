@@ -807,7 +807,7 @@ function playSound(soundId) {
 }
 
 let lastNotificationTimestamp = 0; // Tracks the last notification timestamp
-const notificationCooldown = 30000; // 30-second cooldown
+const notificationCooldown = 3000; // 3-second cooldown
 
 function notifyRecordHigh() {
     const now = Date.now();
