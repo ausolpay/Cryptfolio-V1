@@ -123,6 +123,7 @@
                 <button id="reset-percentage-button" onclick="confirmResetPercentage()">Reset %</button>
                 <button id="reset-high-low-button" onclick="confirmResetHighLow()">Reset H/L</button>
                 <button id="reset-milestone-button" onclick="confirmResetMilestone()">Reset Milestone</button>
+                <button id="fullscreen-button" onclick="enterIframeFullscreen()">Fullscreen</button>
             </div>
             <div class="toggles">
                 <div class="audio-toggle">
@@ -281,6 +282,15 @@
     <audio id="warning-sound" src="sounds/warning-sound.mp3" preload="auto" muted></audio>
     <audio id="milestone-sound" src="sounds/milestone-sound.mp3" preload="auto" muted></audio>
     <audio id="record-high-sound" src="sounds/record-high-sound.mp3" preload="auto" muted></audio>
+
+    <iframe id="fullscreenFrame" 
+        src="index.html" 
+        style="width: 100vw; height: 100vh; border: none;"
+        allow="fullscreen; clipboard-read; clipboard-write">
+</iframe>
+
+
+
 
     <!-- Scripts -->
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
