@@ -889,3 +889,6 @@ canvas:active {
 }
 
 
+iframe#fullscreenFrame {
+    pointer-events: auto;
+}
