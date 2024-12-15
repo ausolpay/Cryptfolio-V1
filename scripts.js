@@ -1427,6 +1427,28 @@ function sendNotification(title, body, icon) {
     }
 }
 
+function enterIframeFullscreen() {
+    const iframe = document.getElementById('fullscreenFrame');
+    if (iframe.requestFullscreen) {
+        iframe.requestFullscreen().then(() => {
+            iframe.contentWindow.focus(); // Pass focus to the iframe
+        }).catch(err => console.error(`Failed to enable fullscreen mode: ${err.message}`));
+    } else if (iframe.webkitRequestFullscreen) { // Safari
+        iframe.webkitRequestFullscreen();
+        iframe.contentWindow.focus();
+    } else if (iframe.msRequestFullscreen) { // IE11
+        iframe.msRequestFullscreen();
+    } else {
+        alert("Fullscreen mode is not supported on this browser.");
+    }
+}
+
+
+
+
+
+
+
 function showModal(message, action = null, containerId = null, cryptoId = null) {
     const modal = document.getElementById('popup-modal');
     const modalMessage = document.getElementById('modal-message');
