@@ -889,6 +889,21 @@ canvas:active {
 }
 
 
-iframe#fullscreenFrame {
-    pointer-events: auto;
+/* Fullscreen mode styling */
+body.fullscreen-mode {
+    overflow: auto; /* Ensure scrolling works in fullscreen */
+    height: 100%; /* Match fullscreen height */
+    width: 100%; /* Match fullscreen width */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+body.fullscreen-mode::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
+}
+
+body.fullscreen-mode {
+    scrollbar-width: none; /* Hide scrollbar in Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
 }
