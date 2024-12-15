@@ -3093,7 +3093,6 @@ function closeCandlestickModal() {
     initializeWebSocket(); // Reinitialize WebSocket for all cryptos
 }
 
- 
 
 // Initialize the app
 initializeApp();
