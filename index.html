@@ -123,7 +123,7 @@
                 <button id="reset-percentage-button" onclick="confirmResetPercentage()">Reset %</button>
                 <button id="reset-high-low-button" onclick="confirmResetHighLow()">Reset H/L</button>
                 <button id="reset-milestone-button" onclick="confirmResetMilestone()">Reset Milestone</button>
-                <button id="fullscreen-button" onclick="enterIframeFullscreen()">Fullscreen</button>
+                <button id="fullscreenBtn">Fullscreen</button>
             </div>
             <div class="toggles">
                 <div class="audio-toggle">
@@ -275,6 +275,10 @@
         ></lottie-player>
     </div>
 
+    <div id="content-container" style="display: none;">
+        <!-- Dynamic content will be loaded here -->
+    </div>
+
     <!-- Audio elements for notifications -->
     <audio id="good-sound" src="sounds/good-sound.mp3" preload="auto" muted></audio>
     <audio id="bad-sound" src="sounds/bad-sound.mp3" preload="auto" muted></audio>
@@ -283,11 +287,7 @@
     <audio id="milestone-sound" src="sounds/milestone-sound.mp3" preload="auto" muted></audio>
     <audio id="record-high-sound" src="sounds/record-high-sound.mp3" preload="auto" muted></audio>
 
-    <iframe id="fullscreenFrame" 
-        src="index.html" 
-        style="width: 100vw; height: 100vh; border: none;"
-        allow="fullscreen; clipboard-read; clipboard-write">
-</iframe>
+
 
 
 
