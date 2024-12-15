@@ -1427,21 +1427,62 @@ function sendNotification(title, body, icon) {
     }
 }
 
-function enterIframeFullscreen() {
-    const iframe = document.getElementById('fullscreenFrame');
-    if (iframe.requestFullscreen) {
-        iframe.requestFullscreen().then(() => {
-            iframe.contentWindow.focus(); // Pass focus to the iframe
-        }).catch(err => console.error(`Failed to enable fullscreen mode: ${err.message}`));
-    } else if (iframe.webkitRequestFullscreen) { // Safari
-        iframe.webkitRequestFullscreen();
-        iframe.contentWindow.focus();
-    } else if (iframe.msRequestFullscreen) { // IE11
-        iframe.msRequestFullscreen();
-    } else {
-        alert("Fullscreen mode is not supported on this browser.");
-    }
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    // Function to enter fullscreen mode
+    const enterFullscreen = () => {
+        const currentContent = document.documentElement; // Target the full HTML document
+        if (currentContent.requestFullscreen) {
+            currentContent.requestFullscreen()
+                .then(() => {
+                    document.body.classList.add('fullscreen-mode');
+                })
+                .catch(err => console.error(`Error entering fullscreen: ${err.message}`));
+        } else if (currentContent.webkitRequestFullscreen) { // Safari
+            currentContent.webkitRequestFullscreen();
+            document.body.classList.add('fullscreen-mode');
+        } else if (currentContent.msRequestFullscreen) { // IE/Edge
+            currentContent.msRequestFullscreen();
+            document.body.classList.add('fullscreen-mode');
+        } else {
+            alert("Fullscreen is not supported on this browser.");
+        }
+    };
+
+    // Function to exit fullscreen mode
+    const exitFullscreen = () => {
+        if (document.exitFullscreen) {
+            document.exitFullscreen()
+                .then(() => {
+                    document.body.classList.remove('fullscreen-mode');
+                })
+                .catch(err => console.error(`Error exiting fullscreen: ${err.message}`));
+        } else if (document.webkitExitFullscreen) { // Safari
+            document.webkitExitFullscreen();
+            document.body.classList.remove('fullscreen-mode');
+        } else if (document.msExitFullscreen) { // IE/Edge
+            document.msExitFullscreen();
+            document.body.classList.remove('fullscreen-mode');
+        }
+    };
+
+    // Handle fullscreen button click
+    fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            enterFullscreen();
+        } else {
+            exitFullscreen();
+        }
+    });
+
+    // Reset styles when exiting fullscreen
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.body.classList.remove('fullscreen-mode');
+        }
+    });
+});
 
 
 
