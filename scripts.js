@@ -807,7 +807,7 @@ function playSound(soundId) {
 }
 
 let lastNotificationTimestamp = 0; // Tracks the last notification timestamp
-const notificationCooldown = 3000; // 3-second cooldown
+const notificationCooldown = 5000; // 5-second cooldown
 
 function notifyRecordHigh() {
     const now = Date.now();
@@ -855,6 +855,12 @@ function notifyPortfolioChange(change) {
 }
 
 function notifyMilestone(milestone) {
+    const now = Date.now();
+    if (now - lastNotificationTimestamp < notificationCooldown) {
+        console.log('Record Low notification suppressed due to cooldown.');
+        return; // Exit if cooldown period hasn't passed
+    }
+
     const icon = 'images/milestone-icon.png';
     checkAndRequestNotificationPermission();
     sendNotification(
@@ -862,6 +868,7 @@ function notifyMilestone(milestone) {
         `You've reached a new milestone of $${formatNumber(milestone.toFixed(2))}`,
         icon
     );
+    lastNotificationTimestamp = now; // Update the last notification timestamp
 }
 
 
@@ -931,6 +938,7 @@ function playMilestoneAnimation() {
     lottieContainer.style.display = 'block';
     lottieContainer.style.zIndex = '9999'; // Bring it to the top of the stack
     lottieContainer.style.position = 'absolute'; // Ensure it doesn't get hidden by other elements
+   
 
     try {
         // Reset and play the animation
@@ -952,6 +960,23 @@ function playMilestoneAnimation() {
     }, 1000); // Adjust duration to match animation
 }
 
+function hideMilestoneAnimation() {
+    const lottieContainer = document.getElementById('lottie-container');
+    const modalElement = document.getElementById('total-holdings-modal');
+
+    // Ensure modalElement exists
+    if (modalElement) {
+        // Check if modalElement is visible
+        const isModalVisible = modalElement.style.display === 'block'; // Inline style check
+        if (isModalVisible) {
+            lottieContainer.style.display = 'none';
+        }
+    }
+}
+
+
+
+
 // Function to play the milestone modal animation
 function playMilestoneModalAnimation() {
     const lottieContainer = document.getElementById('modal-lottie-container');
@@ -961,6 +986,8 @@ function playMilestoneModalAnimation() {
         console.error("Modal Lottie animation elements not found.");
         return;
     }
+    
+   
 
     console.log("Triggering modal milestone animation.");
 
@@ -968,6 +995,16 @@ function playMilestoneModalAnimation() {
     lottieContainer.style.display = 'block';
     lottieContainer.style.zIndex = '9999'; // Bring it to the top of the stack
     lottieContainer.style.position = 'absolute'; // Ensure it doesn't get hidden by other elements
+    lottieContainer.style.height = '150vh'; // 150% of the viewport height
+    lottieContainer.style.width = '150vw'; // 150% of the viewport width
+    lottieContainer.style.position = 'fixed';
+    lottieContainer.style.top = '50%'; // Start centering vertically
+    lottieContainer.style.left = '50%'; // Start centering horizontally
+    lottieContainer.style.transform = 'translate(-50%, -50%)'; // Adjust to true center
+    lottieContainer.style.zIndex = '9999'; // Ensure it appears above other elements
+    lottieContainer.style.overflow = 'hidden'; // Optional: prevent unwanted scrolling
+
+    hideMilestoneAnimation();
 
     try {
         // Reset and play the animation
