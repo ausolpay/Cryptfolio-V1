@@ -995,15 +995,15 @@ function sendActivityStatusToAnalytics(status) {
 // Reset the idle timer on user interaction
 function resetIdleTimer() {
     if (isIdle) {
-        sendActivityStatusToAnalytics('active'); // Send "active" event
-        updateOnlineUsers(1); // Increment total online users
         isIdle = false;
+        updateOnlineUsers(1); // Increment total online users
+        sendActivityStatusToAnalytics('active'); // Send "active" event
     }
     clearTimeout(idleTimeout);
     idleTimeout = setTimeout(() => {
         isIdle = true;
-        sendActivityStatusToAnalytics('idle'); // Send "idle" event
         updateOnlineUsers(-1); // Decrement total online users
+        sendActivityStatusToAnalytics('idle'); // Send "idle" event
     }, idleDuration);
 }
 
@@ -1054,6 +1054,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (settingsModal) {
         settingsModal.appendChild(counter);
     }
+
+    // Increment the total online users when the page loads
+    updateOnlineUsers(1); // Assume the user is active on page load
+    sendActivityStatusToAnalytics('active'); // Send initial "active" event
 });
 
 
