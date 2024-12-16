@@ -976,61 +976,86 @@ function hideMilestoneAnimation() {
 
 
 let totalOnlineUsers = 0; // Total online users count
-let userID = Math.random().toString(36).substr(2, 9); // Unique user ID
+let userID = Math.random().toString(36).substr(2, 9); // Unique user ID for session tracking
 let isIdle = false; // Tracks if the user is idle
-let idleTimeout; // Timer to detect idle state
-const idleDuration = 30000; // Time (30s) to consider the user idle
+let idleTimeout; // Timer for idle detection
+const idleDuration = 30000; // Time (30 seconds) to consider a user idle
 
-// Function to send activity status
-function sendActivityStatus(status) {
-    if (status === 'active') {
-        updateOnlineUsers(1); // Increment when active
-    } else if (status === 'idle') {
-        updateOnlineUsers(-1); // Decrement when idle
-    }
+// Function to send activity status to Google Analytics
+function sendActivityStatusToAnalytics(status) {
+    gtag('event', 'user_status', {
+        'event_category': 'retention',
+        'event_label': status,
+        'value': totalOnlineUsers, // Include total online users
+        'user_id': userID // Optionally track unique user sessions
+    });
+    console.log(`Analytics Event Sent: Status - ${status}, Total Online Users - ${totalOnlineUsers}`);
 }
 
-// Reset idle timer on activity
+// Reset the idle timer on user interaction
 function resetIdleTimer() {
     if (isIdle) {
-        sendActivityStatus('active');
+        sendActivityStatusToAnalytics('active'); // Send "active" event
+        updateOnlineUsers(1); // Increment total online users
         isIdle = false;
     }
     clearTimeout(idleTimeout);
     idleTimeout = setTimeout(() => {
         isIdle = true;
-        sendActivityStatus('idle');
+        sendActivityStatusToAnalytics('idle'); // Send "idle" event
+        updateOnlineUsers(-1); // Decrement total online users
     }, idleDuration);
 }
 
-// Update total online users
+// Update the total online users counter
 function updateOnlineUsers(change) {
     totalOnlineUsers += change;
-    if (totalOnlineUsers < 0) totalOnlineUsers = 0; // Prevent negative count
+    if (totalOnlineUsers < 0) totalOnlineUsers = 0; // Prevent negative user count
     const counter = document.getElementById('online-users-counter');
     if (counter) {
         counter.textContent = `Total Online Users: ${totalOnlineUsers}`;
     }
-    console.log(`Total Online Users: ${totalOnlineUsers}`); // Debug log
+    console.log(`Total Online Users: ${totalOnlineUsers}`);
 }
 
-// Track activity on events
+// Add event listeners to detect user interaction
 function setupActivityListeners() {
     const events = [
-        'mousemove', 'keydown', 'click', 'scroll', 
-        'touchstart', 'touchmove', 'orientationchange', 'focus'
+        'mousemove', 'keydown', 'click', 'scroll', // Desktop interactions
+        'touchstart', 'touchmove', 'orientationchange', 'focus' // Mobile interactions
     ];
-    events.forEach(event => document.addEventListener(event, resetIdleTimer));
+
+    events.forEach(event => {
+        document.addEventListener(event, resetIdleTimer);
+    });
+
+    // Handle when the user returns focus to the page
     window.addEventListener('focus', () => {
         if (isIdle) resetIdleTimer();
     });
 }
 
-// Initialize on page load
+// Initialize tracking when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    resetIdleTimer(); // Start idle timer
-    setupActivityListeners(); // Set up listeners
+    // Start idle detection and activity tracking
+    resetIdleTimer();
+    setupActivityListeners();
+
+    // Initialize the Total Online Users counter in the settings modal
+    const counter = document.createElement('div');
+    counter.id = 'online-users-counter';
+    counter.style = `
+        margin: 20px 0; 
+        text-align: center; 
+        font-size: 18px;
+    `;
+    counter.textContent = `Total Online Users: ${totalOnlineUsers}`;
+    const settingsModal = document.querySelector('#settings-modal .modal-content');
+    if (settingsModal) {
+        settingsModal.appendChild(counter);
+    }
 });
+
 
 
 
