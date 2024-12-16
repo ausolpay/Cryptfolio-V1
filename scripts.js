@@ -976,34 +976,25 @@ function hideMilestoneAnimation() {
 
 
 let totalOnlineUsers = 0; // Total online users count
-let userID = Math.random().toString(36).substr(2, 9); // Unique user ID for session tracking
+let userID = Math.random().toString(36).substr(2, 9); // Unique user ID
 let isIdle = false; // Tracks if the user is idle
 let idleTimeout; // Timer for idle detection
 const idleDuration = 30000; // Time (30 seconds) to consider a user idle
+const checkInterval = 5000; // Polling interval for checking online users (5 seconds)
 
-// Function to send activity status to Google Analytics
-function sendActivityStatusToAnalytics(status) {
-    gtag('event', 'user_status', {
-        'event_category': 'retention',
-        'event_label': status,
-        'value': totalOnlineUsers, // Include total online users
-        'user_id': userID // Optionally track unique user sessions
-    });
-    console.log(`Analytics Event Sent: Status - ${status}, Total Online Users - ${totalOnlineUsers}`);
-}
+// Shared server file URL for online user tracking (replace with your own endpoint)
+const serverFileURL = '/path/to/online_users.json'; // Example: "/api/online_users.json"
 
-// Reset the idle timer on user interaction
+// Reset idle timer and mark the user as active
 function resetIdleTimer() {
     if (isIdle) {
         isIdle = false;
-        updateOnlineUsers(1); // Increment total online users
-        sendActivityStatusToAnalytics('active'); // Send "active" event
+        updateOnlineUsers(1);
     }
     clearTimeout(idleTimeout);
     idleTimeout = setTimeout(() => {
         isIdle = true;
-        updateOnlineUsers(-1); // Decrement total online users
-        sendActivityStatusToAnalytics('idle'); // Send "idle" event
+        updateOnlineUsers(-1);
     }, idleDuration);
 }
 
@@ -1011,6 +1002,8 @@ function resetIdleTimer() {
 function updateOnlineUsers(change) {
     totalOnlineUsers += change;
     if (totalOnlineUsers < 0) totalOnlineUsers = 0; // Prevent negative user count
+
+    // Display the updated count
     const counter = document.getElementById('online-users-counter');
     if (counter) {
         counter.textContent = `Total Online Users: ${totalOnlineUsers}`;
@@ -1018,47 +1011,79 @@ function updateOnlineUsers(change) {
     console.log(`Total Online Users: ${totalOnlineUsers}`);
 }
 
-// Add event listeners to detect user interaction
+// Check online users periodically
+async function checkOnlineUsers() {
+    try {
+        const response = await fetch(serverFileURL);
+        const data = await response.json();
+        totalOnlineUsers = data.onlineUsers || 0;
+
+        // Update the counter in the modal
+        const counter = document.getElementById('online-users-counter');
+        if (counter) {
+            counter.textContent = `Total Online Users: ${totalOnlineUsers}`;
+        }
+        console.log(`Checked Online Users: ${totalOnlineUsers}`);
+    } catch (error) {
+        console.error('Failed to check online users:', error);
+    }
+}
+
+// Set up activity listeners
 function setupActivityListeners() {
-    const events = [
-        'mousemove', 'keydown', 'click', 'scroll', // Desktop interactions
-        'touchstart', 'touchmove', 'orientationchange', 'focus' // Mobile interactions
-    ];
-
-    events.forEach(event => {
-        document.addEventListener(event, resetIdleTimer);
-    });
-
-    // Handle when the user returns focus to the page
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart', 'touchmove'];
+    events.forEach(event => document.addEventListener(event, resetIdleTimer));
     window.addEventListener('focus', () => {
         if (isIdle) resetIdleTimer();
     });
 }
 
-// Initialize tracking when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Start idle detection and activity tracking
-    resetIdleTimer();
-    setupActivityListeners();
+// Send user status to the server
+async function sendUserStatus(status) {
+    try {
+        await fetch(serverFileURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userID, status })
+        });
+        console.log(`User ${userID} is now ${status}`);
+    } catch (error) {
+        console.error('Failed to send user status:', error);
+    }
+}
 
-    // Initialize the Total Online Users counter in the settings modal
-    const counter = document.createElement('div');
-    counter.id = 'online-users-counter';
-    counter.style = `
-        margin: 20px 0; 
-        text-align: center; 
-        font-size: 18px;
-    `;
-    counter.textContent = `Total Online Users: ${totalOnlineUsers}`;
-    const settingsModal = document.querySelector('#settings-modal .modal-content');
-    if (settingsModal) {
-        settingsModal.appendChild(counter);
+// Initialize the tracking
+document.addEventListener('DOMContentLoaded', () => {
+    resetIdleTimer(); // Start idle detection
+    setupActivityListeners(); // Set up activity tracking
+
+    // Initialize the counter in the settings modal
+    let counter = document.getElementById('online-users-counter');
+    if (!counter) {
+        counter = document.createElement('div');
+        counter.id = 'online-users-counter';
+        counter.style = `
+            margin: 20px 0; 
+            text-align: center; 
+            font-size: 18px;
+        `;
+        counter.textContent = `Total Online Users: ${totalOnlineUsers}`;
+        const settingsModal = document.querySelector('#settings-modal .modal-content');
+        if (settingsModal) {
+            settingsModal.appendChild(counter);
+        }
     }
 
-    // Increment the total online users when the page loads
-    updateOnlineUsers(1); // Assume the user is active on page load
-    sendActivityStatusToAnalytics('active'); // Send initial "active" event
+    // Send initial active status
+    sendUserStatus('active');
+
+    // Poll for online users every 5 seconds
+    setInterval(checkOnlineUsers, checkInterval);
+
+    // Handle user leaving the page
+    window.addEventListener('beforeunload', () => sendUserStatus('idle'));
 });
+
 
 
 
