@@ -979,10 +979,9 @@ const GA_MEASUREMENT_ID = 'G-C7DZD5J9D7'; // Your Google Tag ID
 const IDLE_TIMEOUT = 30000; // 30 seconds for idle detection
 let isIdle = false; // Tracks if the user is idle
 let idleTimeout; // Timer for idle detection
-let uniqueUsers = new Set(); // Tracks unique users in the session
 
-// Generate or retrieve a unique user ID for this session
-const userID = (() => {
+// Generate or retrieve a persistent unique identifier for the user
+const uniqueUserID = (() => {
     let id = localStorage.getItem('uniqueUserID');
     if (!id) {
         id = Math.random().toString(36).substr(2, 9); // Generate a new ID
@@ -991,22 +990,27 @@ const userID = (() => {
     return id;
 })();
 
-// Initialize the dataLayer if not already defined
-window.dataLayer = window.dataLayer || [];
-
-// Function to send data to Google Analytics
+// Function to send events to Google Analytics
 function sendToAnalytics(eventName, data) {
     gtag('event', eventName, data);
     console.log(`Event sent to Analytics: ${eventName}`, data);
 }
 
-// Function to send user status to Google Analytics
-function sendUserStatusToAnalytics(status) {
-    uniqueUsers.add(userID); // Ensure this user is tracked as unique
-    sendToAnalytics('user_status', {
-        event_category: 'retention',
-        event_label: status,
-        value: uniqueUsers.size, // Total unique users
+// Function to send an "active" user event
+function sendActiveUserEvent() {
+    sendToAnalytics('active_user', {
+        event_category: 'user_activity',
+        event_label: 'active',
+        user_id: uniqueUserID, // Include unique user ID
+    });
+}
+
+// Function to send an "idle" user event
+function sendIdleUserEvent() {
+    sendToAnalytics('idle_user', {
+        event_category: 'user_activity',
+        event_label: 'idle',
+        user_id: uniqueUserID, // Include unique user ID
     });
 }
 
@@ -1014,12 +1018,12 @@ function sendUserStatusToAnalytics(status) {
 function resetIdleTimer() {
     if (isIdle) {
         isIdle = false;
-        sendUserStatusToAnalytics('active'); // Send "active" event
+        sendActiveUserEvent(); // Send "active" event
     }
     clearTimeout(idleTimeout);
     idleTimeout = setTimeout(() => {
         isIdle = true;
-        sendUserStatusToAnalytics('idle'); // Send "idle" event
+        sendIdleUserEvent(); // Send "idle" event
     }, IDLE_TIMEOUT);
 }
 
@@ -1032,14 +1036,17 @@ function setupActivityListeners() {
     });
 }
 
-// Periodically send total unique users to Analytics
-function sendUniqueUsersCount() {
-    sendToAnalytics('unique_users', {
-        event_category: 'users',
-        event_label: 'total_unique_users',
-        value: uniqueUsers.size, // Total unique users
-    });
-    console.log(`Unique users count sent: ${uniqueUsers.size}`);
+// Track a unique user once per session
+function trackUniqueUser() {
+    // Check if the unique user has already been tracked this session
+    if (!sessionStorage.getItem('uniqueUserTracked')) {
+        sendToAnalytics('unique_user', {
+            event_category: 'users',
+            event_label: 'unique_user',
+            user_id: uniqueUserID, // Include unique user ID
+        });
+        sessionStorage.setItem('uniqueUserTracked', 'true'); // Mark as tracked
+    }
 }
 
 // Initialize the script
@@ -1047,12 +1054,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setupActivityListeners(); // Set up activity tracking
     resetIdleTimer(); // Start idle detection
 
-    // Send an initial "active" status and unique user count
-    sendUserStatusToAnalytics('active');
-    sendUniqueUsersCount();
+    // Track unique user once per session
+    trackUniqueUser();
 
-    // Periodically send unique users count to Analytics
-    setInterval(sendUniqueUsersCount, 60000); // Every 60 seconds
+    // Send an initial "active" event
+    sendActiveUserEvent();
 });
 
 
