@@ -975,6 +975,89 @@ function hideMilestoneAnimation() {
 }
 
 
+const GA_MEASUREMENT_ID = 'G-C7DZD5J9D7'; // Your Google Tag ID
+const IDLE_TIMEOUT = 30000; // 30 seconds for idle detection
+let isIdle = false; // Tracks if the user is idle
+let idleStartTime = null; // Tracks when the user became idle
+let idleTimeout; // Timer for idle detection
+
+// Generate or retrieve a persistent unique identifier for the user
+const uniqueUserID = (() => {
+    let id = localStorage.getItem('uniqueUserID');
+    if (!id) {
+        id = Math.random().toString(36).substr(2, 9); // Generate a new ID
+        localStorage.setItem('uniqueUserID', id);
+    }
+    return id;
+})();
+
+// Function to send events to Google Analytics
+function sendToAnalytics(eventName, data) {
+    gtag('event', eventName, data);
+    console.log(`Event sent to Analytics: ${eventName}`, data);
+}
+
+// Function to send a "unique visitor" event (only once per unique user)
+function sendUniqueVisitorEvent() {
+    if (!localStorage.getItem('uniqueVisitorRecorded')) {
+        sendToAnalytics('unique_visitor', {
+            event_category: 'users',
+            event_label: 'unique_visitor',
+            user_id: uniqueUserID, // Include unique user ID
+        });
+        localStorage.setItem('uniqueVisitorRecorded', 'true'); // Mark as recorded
+        console.log(`Unique visitor recorded for user ID: ${uniqueUserID}`);
+    }
+}
+
+// Function to send an "idle user" event with idle time in minutes
+function sendIdleUserEvent() {
+    if (!isIdle) {
+        isIdle = true;
+        idleStartTime = Date.now(); // Record the start time of idleness
+    } else if (idleStartTime) {
+        // Calculate idle duration in minutes
+        const idleDurationMinutes = Math.floor((Date.now() - idleStartTime) / 60000); // Convert ms to minutes
+
+        // Send idle user event
+        sendToAnalytics('idle_user', {
+            event_category: 'user_activity',
+            event_label: 'idle',
+            user_id: uniqueUserID, // Include unique user ID
+            idle_time: `${idleDurationMinutes}m`, // Idle time in minutes
+        });
+        console.log(`Idle user event sent: ${idleDurationMinutes} minutes idle.`);
+    }
+}
+
+// Reset idle timer
+function resetIdleTimer() {
+    if (isIdle) {
+        isIdle = false; // Reset idle state
+        idleStartTime = null; // Reset idle start time
+    }
+    clearTimeout(idleTimeout);
+    idleTimeout = setTimeout(() => {
+        sendIdleUserEvent(); // Send "idle user" event
+    }, IDLE_TIMEOUT);
+}
+
+// Set up activity listeners
+function setupActivityListeners() {
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart', 'touchmove'];
+    events.forEach(event => document.addEventListener(event, resetIdleTimer));
+}
+
+// Initialize the script
+document.addEventListener('DOMContentLoaded', () => {
+    setupActivityListeners(); // Set up activity tracking
+    resetIdleTimer(); // Start idle detection
+
+    // Send the unique visitor event only once per user
+    sendUniqueVisitorEvent();
+});
+
+
 
 
 // Function to play the milestone modal animation
