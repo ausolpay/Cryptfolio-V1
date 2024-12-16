@@ -975,6 +975,42 @@ function hideMilestoneAnimation() {
 }
 
 
+let isIdle = false; // Track the user's idle state
+let idleTimeout; // Timer to track inactivity
+const idleDuration = 30000; // 30 seconds of inactivity to mark as idle
+
+// Function to send activity status to Google Analytics
+function sendActivityStatus(status) {
+    gtag('event', 'user_status', {
+        'event_category': 'retention',
+        'event_label': status
+    });
+    console.log(`User is now ${status}`); // For debugging
+}
+
+// Reset the idle timer when user interacts
+function resetIdleTimer() {
+    if (isIdle) {
+        sendActivityStatus('active');
+        isIdle = false;
+    }
+    clearTimeout(idleTimeout);
+    idleTimeout = setTimeout(() => {
+        isIdle = true;
+        sendActivityStatus('idle');
+    }, idleDuration);
+}
+
+// Add event listeners to track user interaction
+document.addEventListener('mousemove', resetIdleTimer);
+document.addEventListener('keydown', resetIdleTimer);
+document.addEventListener('click', resetIdleTimer);
+document.addEventListener('scroll', resetIdleTimer);
+
+// Start the timer on page load
+resetIdleTimer();
+
+
 
 
 // Function to play the milestone modal animation
