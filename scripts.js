@@ -975,20 +975,22 @@ function hideMilestoneAnimation() {
 }
 
 
-let isIdle = false; // Track the user's idle state
-let idleTimeout; // Timer to track inactivity
-const idleDuration = 30000; // 30 seconds of inactivity to mark as idle
+let totalOnlineUsers = 0; // Total online users count
+let userID = Math.random().toString(36).substr(2, 9); // Unique user ID
+let isIdle = false; // Tracks if the user is idle
+let idleTimeout; // Timer to detect idle state
+const idleDuration = 30000; // Time (30s) to consider the user idle
 
-// Function to send activity status to Google Analytics
+// Function to send activity status
 function sendActivityStatus(status) {
-    gtag('event', 'user_status', {
-        'event_category': 'retention',
-        'event_label': status
-    });
-    console.log(`User is now ${status}`); // For debugging
+    if (status === 'active') {
+        updateOnlineUsers(1); // Increment when active
+    } else if (status === 'idle') {
+        updateOnlineUsers(-1); // Decrement when idle
+    }
 }
 
-// Reset the idle timer when user interacts
+// Reset idle timer on activity
 function resetIdleTimer() {
     if (isIdle) {
         sendActivityStatus('active');
@@ -1001,14 +1003,35 @@ function resetIdleTimer() {
     }, idleDuration);
 }
 
-// Add event listeners to track user interaction
-document.addEventListener('mousemove', resetIdleTimer);
-document.addEventListener('keydown', resetIdleTimer);
-document.addEventListener('click', resetIdleTimer);
-document.addEventListener('scroll', resetIdleTimer);
+// Update total online users
+function updateOnlineUsers(change) {
+    totalOnlineUsers += change;
+    if (totalOnlineUsers < 0) totalOnlineUsers = 0; // Prevent negative count
+    const counter = document.getElementById('online-users-counter');
+    if (counter) {
+        counter.textContent = `Total Online Users: ${totalOnlineUsers}`;
+    }
+    console.log(`Total Online Users: ${totalOnlineUsers}`); // Debug log
+}
 
-// Start the timer on page load
-resetIdleTimer();
+// Track activity on events
+function setupActivityListeners() {
+    const events = [
+        'mousemove', 'keydown', 'click', 'scroll', 
+        'touchstart', 'touchmove', 'orientationchange', 'focus'
+    ];
+    events.forEach(event => document.addEventListener(event, resetIdleTimer));
+    window.addEventListener('focus', () => {
+        if (isIdle) resetIdleTimer();
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    resetIdleTimer(); // Start idle timer
+    setupActivityListeners(); // Set up listeners
+});
+
 
 
 
