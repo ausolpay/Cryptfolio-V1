@@ -1040,9 +1040,9 @@ function setupActivityListeners() {
 function trackUniqueUser() {
     // Check if the unique user has already been tracked this session
     if (!sessionStorage.getItem('uniqueUserTracked')) {
-        sendToAnalytics('unique_user', {
+        sendToAnalytics('unique_user_id', {
             event_category: 'users',
-            event_label: 'unique_user',
+            event_label: 'unique_user_id',
             user_id: uniqueUserID, // Include unique user ID
         });
         sessionStorage.setItem('uniqueUserTracked', 'true'); // Mark as tracked
@@ -1060,7 +1060,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Send an initial "active" event
     sendActiveUserEvent();
 });
-
 
 
 
