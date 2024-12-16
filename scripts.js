@@ -977,9 +977,6 @@ function hideMilestoneAnimation() {
 
 
 
-
-
-
 // Function to play the milestone modal animation
 function playMilestoneModalAnimation() {
     const lottieContainer = document.getElementById('modal-lottie-container');
@@ -3096,6 +3093,7 @@ function closeCandlestickModal() {
     initializeWebSocket(); // Reinitialize WebSocket for all cryptos
 }
 
+ 
 
 // Initialize the app
 initializeApp();
